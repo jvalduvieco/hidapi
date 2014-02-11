@@ -648,7 +648,7 @@ static void read_callback(struct libusb_transfer *transfer)
 	hid_device *dev = transfer->user_data;
 	int res;
 
-	if (transfer->status == LIBUSB_TRANSFER_COMPLETED) {
+	if (transfer->status == LIBUSB_TRANSFER_COMPLETED && transfer->actual_length > 0) {
 
 		struct input_report *rpt = malloc(sizeof(*rpt));
 		rpt->data = malloc(transfer->actual_length);
@@ -695,6 +695,9 @@ static void read_callback(struct libusb_transfer *transfer)
 	}
 	else if (transfer->status == LIBUSB_TRANSFER_TIMED_OUT) {
 		//LOG("Timeout (normal)\n");
+	}
+	else if (transfer->status == LIBUSB_TRANSFER_COMPLETED && transfer->actual_length == 0) {
+		//do nothing
 	}
 	else {
 		LOG("Unknown transfer code: %d\n", transfer->status);
